@@ -27,7 +27,7 @@ VECTOR_SEARCH_TOP_K: 5
 SCORE_THRESHOLD: 1.0
 
 # 默认搜索引擎
-# 可选值：['bing', 'duckduckgo', 'metaphor', 'searx']
+# 可选值：['searx', 'duckduckgo', 'bing']
 DEFAULT_SEARCH_ENGINE: duckduckgo
 
 # 搜索引擎匹配结题数量
