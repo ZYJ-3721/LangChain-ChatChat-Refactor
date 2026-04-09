@@ -356,22 +356,6 @@ class ModelSettings(BaseFileSettings):
             "text2speech_models": [],
         }),
         PlatformConfig(**{
-            "platform_name": "oneapi",
-            "platform_type": "oneapi",
-            "api_base_url": "http://127.0.0.1:3000/v1",
-            "api_key": "",
-            "api_proxy": "",
-            "api_concurrencies": 5,
-            "auto_detect_model": False,
-            "llm_models": [],
-            "embed_models": [],
-            "text2image_models": [],
-            "image2text_models": [],
-            "rerank_models": [],
-            "speech2text_models": [],
-            "text2speech_models": [],
-        }),
-        PlatformConfig(**{
             "platform_name": "openai",
             "platform_type": "openai",
             "api_base_url": "https://api.openai.com/v1",
@@ -401,12 +385,12 @@ class PromptSettings(BaseFileSettings):
 
     preprocess_model: dict = {
         "default": (
-            "你只要回复0和1, 代表不需要使用工具。以下几种问题不需要使用工具:\n"
-            "1. 需要联网查询的内容\n"
-            "2. 需要计算的内容\n"
+            "判断是否需要使用工具, 以下几种情况不需要使用工具:\n"
+            "1. 需要计算的内容\n"
+            "2. 需要联网查询的内容\n"
             "3. 需要查询实时性的内容\n"
-            "如果我的输入满足这几种情况, 返回1。其他输入, 请你回复0, 你只要返回一个数字\n"
-            "这是我的问题:"
+            "如果我的问题符合这几种情况, 返回1, 否则返回0, 你只能返回一个数字0或1。\n"
+            "这是我的问题: "
         ),
     }
     """意图识别用模板"""
@@ -414,30 +398,27 @@ class PromptSettings(BaseFileSettings):
     llm_model: dict = {
         "default": "{{input}}",
         "with_history": (
-            "The following is a friendly conversation between a human and an AI.\n"
-            "The AI is talkative and provides lots of specific details from its context.\n"
-            "If the AI does not know the answer to a question, it truthfully says it does not know.\n\n"
-            "Current conversation:\n"
-            "{{history}}\n"
+            "你是一个诚实的AI助手，如果你无法回答某个问题，你会诚实地说自己不知道。\n\n"
+            "对话历史:\n{{history}}\n"
             "Human: {{input}}\n"
             "AI:"
         ),
     }
-    '''普通 LLM 用模板'''
+    """普通 LLM 用的模板"""
 
     rag: dict = {
         "default": (
-            "【指令】根据已知信息，简洁和专业的来回答问题。"
-            "如果无法从中得到答案，请说 “根据已知信息无法回答该问题”，不允许在答案中添加编造成分，答案请使用中文。\n\n"
+            "你是一个严谨的AI助手，你可以根据已知信息，严谨认真地回答某个问题。"
+            "如果你无法从中得到答案，就回复 “根据已知信息无法回答该问题”。"
+            "坚决不允许编造不存在的信息。\n\n"
             "【已知信息】{{context}}\n\n"
             "【问题】{{question}}\n"
         ),
         "empty": (
-            "请你回答我的问题:\n"
-            "{{question}}"
+            "回答我的问题:\n{{question}}"
         ),
     }
-    '''RAG 用模板，可用于知识库问答、文件对话、搜索引擎对话'''
+    """RAG 用的模板，可用于知识库问答、文件对话、搜索引擎对话"""
 
     action_model: dict = {
         "ChatGLM3": (
@@ -560,16 +541,16 @@ class ToolSettings(BaseFileSettings):
         "top_k": 3,
         "score_threshold": 1.0,
         "conclude_prompt": {
-            "with_result": '<指令>根据已知信息，简洁和专业的来回答问题。如果无法从中得到答案，请说 "根据已知信息无法回答该问题"，'
-            "不允许在答案中添加编造成分，答案请使用中文。 </指令>\n"
+            "with_result": "<指令>你是一个严谨的AI助手，你可以根据已知信息，严谨认真地回答某个问题。"
+            "如果你无法从中得到答案，就回复 “抱歉，暂时无法回答该问题，未从知识库中查询到相关内容”。"
+            "坚决不允许编造不存在的信息。</指令>\n"
             "<已知信息>{{ context }}</已知信息>\n"
             "<问题>{{ question }}</问题>\n",
-            "without_result": "请你根据我的提问回答我的问题:\n"
-            "{{ question }}\n"
-            "请注意，你必须在回答结束后强调，你的回答是根据你的经验回答而不是参考资料回答的。\n",
+            "without_result": "根据我的提问回答问题:\n{{ question }}\n"
+            "注意，你必须在回答结束后强调，你的回答是根据你的经验回答而不是参考资料回答的。\n",
         },
     }
-    '''本地知识库工具配置项'''
+    """本地知识库工具配置项"""
 
     search_internet: dict = {
         "use": False,
@@ -582,12 +563,6 @@ class ToolSettings(BaseFileSettings):
                 "categories": [],
                 "engines": [],
             },
-            "metaphor": {
-                "metaphor_api_key": "",
-                "split_result": False,
-                "chunk_overlap": 50,
-                "chunk_size": 500,
-            },
             "bing": {
                 "bing_search_url": "https://api.bing.microsoft.com/v7.0/search",
                 "bing_key": "",
@@ -599,57 +574,48 @@ class ToolSettings(BaseFileSettings):
         },
         "top_k": 5,
         "verbose": "Origin",
-        "conclude_prompt": "<指令>这是搜索到的互联网信息，请你根据这些信息进行提取并有调理，简洁的回答问题。如果无法从中得到答案，请说 “无法搜索到能回答问题的内容”。 "
-        "</指令>\n<已知信息>{{ context }}</已知信息>\n"
-        "<问题>\n"
-        "{{ question }}\n"
-        "</问题>\n",
+        "conclude_prompt": "<指令>你是一个严谨的AI助手，你可以根据已知信息，严谨认真地回答某个问题。"
+        "如果你无法从中得到答案，就回复 “抱歉，无法回答该问题，未从网络中搜索到相关内容”。"
+        "坚决不允许编造不存在的信息。</指令>\n"
+        "<已知信息>{{ context }}</已知信息>\n"
+        "<问题>{{ question }}</问题>\n",
     }
-    '''搜索引擎工具配置项。推荐自己部署 searx 搜索引擎，国内使用最方便。'''
+    """搜索引擎工具配置项。推荐自己部署 searx 搜索引擎，国内使用最方便。"""
 
     url_reader: dict = {
         "use": False,
         "timeout": "10000",
     }
-    '''URL内容阅读(https://r.jina.ai/)工具配置项, 请确保部署的网络环境良好，以免造成超时等问题'''
+    """URL内容阅读(https://r.jina.ai/)工具配置项, 请确保部署的网络环境良好，以免造成超时等问题"""
+
+    arxiv: dict = {
+        "use": False,
+    }
+    """arxiv 搜索工具配置项"""
+
+    weather_check: dict = {
+        "use": False,
+        "api_key": "",
+    }
+    """心知天气（https://www.seniverse.com/）工具配置项"""
+
+    amap: dict = {
+        "use": False,
+        "api_key": "高德地图 API KEY",
+    }
+    """高德地图、天气相关工具配置项。"""
+
+    calculate: dict = {
+        "use": False,
+    }
+    """numexpr 数学计算工具配置项"""
 
     text2images: dict = {
         "use": False,
         "model": "stable-diffusion-xl-base-1.0",
         "size": "256*256",
     }
-    '''图片生成工具配置项。model 必须是在 model_settings.yaml/MODEL_PLATFORMS 中配置过的。'''
-
-    weather_check: dict = {
-        "use": False,
-        "api_key": "",
-    }
-    '''心知天气（https://www.seniverse.com/）工具配置项'''
-
-    amap: dict = {
-        "use": False,
-        "api_key": "高德地图 API KEY",
-    }
-    '''高德地图、天气相关工具配置项。'''
-
-    calculate: dict = {
-        "use": False,
-    }
-    '''numexpr 数学计算工具配置项'''
-
-    arxiv: dict = {
-        "use": False,
-    }
-    '''arxiv 搜索工具配置项'''
-
-    search_youtube: dict = {
-        "use": False,
-    }
-
-    wolfram: dict = {
-        "use": False,
-        "appid": "",
-    }
+    """图片生成工具配置项。model 必须是在 model_settings.yaml/MODEL_PLATFORMS 中配置过的。"""
 
     text2sql: dict = {
         "use": False,
@@ -675,7 +641,7 @@ class ToolSettings(BaseFileSettings):
             # "tableB":"角色表",
         },
     }
-    '''
+    """
     text2sql使用建议
     1、因大模型生成的sql可能与预期有偏差，请务必在测试环境中进行充分测试、评估；
     2、生产环境中，对于查询操作，由于不确定查询效率，推荐数据库采用主从数据库架构，让text2sql连接从数据库，防止可能的慢查询影响主业务；
@@ -683,7 +649,7 @@ class ToolSettings(BaseFileSettings):
     4、text2sql与大模型在意图理解、sql转换等方面的能力有关，可切换不同大模型进行测试；
     5、数据库表名、字段名应与其实际作用保持一致、容易理解，且应对数据库表名、字段进行详细的备注说明，帮助大模型更好理解数据库结构；
     6、若现有数据库表名难于让大模型理解，可配置下面table_comments字段，补充说明某些表的作用。
-    '''
+    """
 
     text2promql: dict = {
         "use": False,
@@ -694,12 +660,12 @@ class ToolSettings(BaseFileSettings):
         # <your_prometheus_password>
         "password": "",
     }
-    '''
+    """
     text2promql 使用建议
     1、因大模型生成的 promql 可能与预期有偏差, 请务必在测试环境中进行充分测试、评估;
     2、text2promql 与大模型在意图理解、metric 选择、promql 转换等方面的能力有关, 可切换不同大模型进行测试;
     3、当前仅支持 单prometheus 查询, 后续考虑支持 多prometheus 查询.
-    '''
+    """
 
 
 class SettingsContainer:

@@ -102,7 +102,6 @@ LLM_MODEL_CONFIG:
 MODEL_PLATFORMS:
   - platform_name: xinference
     platform_type: xinference
-    # api_base_url: http://127.0.0.1:9997/v1
     api_base_url: http://192.168.12.19:9997/v1
     api_key: ''
     api_proxy: ''
@@ -113,12 +112,12 @@ MODEL_PLATFORMS:
       - qwen2-vl-instruct
     embed_models:
       - bge-large-zh-v1.5
-    rerank_models:
-      - bge-reranker-large
-    image2text_models:
-      - qwen2-vl-instruct
     text2image_models:
       - stable-diffusion-xl-base-1.0
+    image2text_models:
+      - qwen2-vl-instruct
+    rerank_models:
+      - bge-reranker-large
     speech2text_models: []
     text2speech_models: []
   - platform_name: ollama
@@ -133,26 +132,12 @@ MODEL_PLATFORMS:
       - qwen2-vl-instruct
     embed_models:
       - bge-large-zh-v1.5
-    rerank_models:
-      - bge-reranker-large
-    image2text_models:
-      - qwen2-vl-instruct
     text2image_models:
       - stable-diffusion-xl-base-1.0
-    speech2text_models: []
-    text2speech_models: []
-  - platform_name: oneapi
-    platform_type: oneapi
-    api_base_url: http://127.0.0.1:3000/v1
-    api_key: ''
-    api_proxy: ''
-    api_concurrencies: 5
-    auto_detect_model: false
-    llm_models: []
-    embed_models: []
-    text2image_models: []
-    image2text_models: []
-    rerank_models: []
+    image2text_models:
+      - qwen2-vl-instruct
+    rerank_models:
+      - bge-reranker-large
     speech2text_models: []
     text2speech_models: []
   - platform_name: openai

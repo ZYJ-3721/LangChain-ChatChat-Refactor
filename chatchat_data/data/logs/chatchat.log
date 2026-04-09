@@ -1,0 +1,16 @@
+2026-04-08 17:06:56.723 | WARNING  | chatchat.settings.settings_manager:detect_xf_models:51 - 无法连接xinference接口: http://127.0.0.1:9997, 请检查你的配置
+2026-04-08 17:06:56.723 | WARNING  | chatchat.settings.settings_manager:get_default_llm:118 - 没有在平台的可用模型中发现你设置的默认llm模型glm4-chat, 将使用qwen2-instruct模型代替
+2026-04-08 17:07:00.523 | WARNING  | chatchat.settings.settings_manager:get_default_llm:118 - 没有在平台的可用模型中发现你设置的默认llm模型glm4-chat, 将使用qwen2-instruct模型代替
+2026-04-08 17:07:35.710 | WARNING  | chatchat.settings.settings_manager:detect_xf_models:51 - 无法连接xinference接口: http://127.0.0.1:9997, 请检查你的配置
+2026-04-08 17:07:35.712 | WARNING  | chatchat.settings.settings_manager:get_default_llm:118 - 没有在平台的可用模型中发现你设置的默认llm模型glm4-chat, 将使用qwen2-instruct模型代替
+2026-04-08 17:07:38.687 | WARNING  | chatchat.settings.settings_manager:get_default_llm:118 - 没有在平台的可用模型中发现你设置的默认llm模型glm4-chat, 将使用qwen2-instruct模型代替
+2026-04-08 17:27:37.471 | WARNING  | chatchat.settings.settings_manager:detect_xf_models:51 - 无法连接xinference接口: http://127.0.0.1:9997, 请检查你的配置
+2026-04-08 17:27:37.472 | WARNING  | chatchat.settings.settings_manager:get_default_llm:118 - 没有在平台的可用模型中发现你设置的默认llm模型glm4-chat, 将使用qwen2-instruct模型代替
+2026-04-08 17:27:40.811 | WARNING  | chatchat.settings.settings_manager:get_default_llm:118 - 没有在平台的可用模型中发现你设置的默认llm模型glm4-chat, 将使用qwen2-instruct模型代替
+2026-04-08 17:28:58.438 | WARNING  | chatchat.settings.settings_manager:get_default_llm:118 - 没有在平台的可用模型中发现你设置的默认llm模型glm4-chat, 将使用qwen3.5-27b模型代替
+2026-04-08 17:29:01.290 | WARNING  | chatchat.settings.settings_manager:get_default_llm:118 - 没有在平台的可用模型中发现你设置的默认llm模型glm4-chat, 将使用qwen3.5-27b模型代替
+2026-04-08 17:30:01.670 | WARNING  | chatchat.settings.settings_manager:get_default_llm:118 - 没有在平台的可用模型中发现你设置的默认llm模型glm4-chat, 将使用qwen3.5-27b模型代替
+2026-04-08 17:30:06.299 | WARNING  | chatchat.settings.settings_manager:get_default_llm:118 - 没有在平台的可用模型中发现你设置的默认llm模型glm4-chat, 将使用qwen3.5-27b模型代替
+2026-04-09 10:44:10.599 | WARNING  | chatchat.settings.settings_manager:get_default_llm:118 - 没有在平台的可用模型中发现你设置的默认llm模型glm4-chat, 将使用qwen3.5-27b模型代替
+2026-04-09 10:44:22.920 | WARNING  | chatchat.settings.settings_manager:get_default_llm:118 - 没有在平台的可用模型中发现你设置的默认llm模型glm4-chat, 将使用qwen3.5-27b模型代替
+2026-04-09 10:44:28.382 | WARNING  | chatchat.settings.settings_manager:get_default_llm:118 - 没有在平台的可用模型中发现你设置的默认llm模型glm4-chat, 将使用qwen3.5-27b模型代替

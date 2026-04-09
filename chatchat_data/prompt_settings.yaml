@@ -3,22 +3,20 @@
 
 # 意图识别用模板
 preprocess_model:
-  default: "你只要回复0和1, 代表不需要使用工具。以下几种问题不需要使用工具:\n1. 需要联网查询的内容\n2. 需要计算的内容\n3. 需要查询实时性的内容\n
-    如果我的输入满足这几种情况, 返回1。其他输入, 请你回复0, 你只要返回一个数字\n这是我的问题:"
+  default: "判断是否需要使用工具, 以下几种情况不需要使用工具:\n1. 需要计算的内容\n2. 需要联网查询的内容\n3. 需要查询实时性的内容\n
+    如果我的问题符合这几种情况, 返回1, 否则返回0, 你只能返回一个数字0或1。\n这是我的问题: "
 
-# 普通 LLM 用模板
+# 普通 LLM 用的模板
 llm_model:
   default: '{{input}}'
-  with_history: "The following is a friendly conversation between a human and an AI.\n
-    The AI is talkative and provides lots of specific details from its context.\n
-    If the AI does not know the answer to a question, it truthfully says it does not
-    know.\n\nCurrent conversation:\n{{history}}\nHuman: {{input}}\nAI:"
+  with_history: "你是一个诚实的AI助手，如果你无法回答某个问题，你会诚实地说自己不知道。\n\n对话历史:\n{{history}}\nHuman:
+    {{input}}\nAI:"
 
-# RAG 用模板，可用于知识库问答、文件对话、搜索引擎对话
+# RAG 用的模板，可用于知识库问答、文件对话、搜索引擎对话
 rag:
-  default: "【指令】根据已知信息，简洁和专业的来回答问题。如果无法从中得到答案，请说 “根据已知信息无法回答该问题”，不允许在答案中添加编造成分，答案请使用中文。\n\
+  default: "你是一个严谨的AI助手，你可以根据已知信息，严谨认真地回答某个问题。如果你无法从中得到答案，就回复 “根据已知信息无法回答该问题”。坚决不允许编造不存在的信息。\n\
     \n【已知信息】{{context}}\n\n【问题】{{question}}\n"
-  empty: "请你回答我的问题:\n{{question}}"
+  empty: "回答我的问题:\n{{question}}"
 
 # Agent 模板
 action_model:

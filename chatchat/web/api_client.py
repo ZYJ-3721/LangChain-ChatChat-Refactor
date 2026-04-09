@@ -1,5 +1,10 @@
+# 该文件封装了对api.py的请求，可以被不同的webui使用
+# 通过ApiRequest和AsyncApiRequest支持同步/异步调用
+
+import base64
 import contextlib
 import json
+import logging
 import os
 from io import BytesIO
 from pathlib import Path
@@ -8,9 +13,8 @@ from typing import *
 import httpx
 
 from chatchat.settings import Settings
+from chatchat.server.utils import api_address, get_httpx_client, set_httpx_config, get_default_embedding
 from chatchat.utils import build_logger
-from chatchat.settings.settings_manager import get_default_embedding, get_api_address
-get_httpx_client, set_httpx_config,
 
 
 logger = build_logger()
@@ -102,6 +106,28 @@ class ApiRequest:
                     return self.client.delete(url, data=data, json=json, **kwargs)
             except Exception as e:
                 msg = f"error when delete {url}: {e}"
+                logger.error(f"{e.__class__.__name__}: {msg}")
+                retry -= 1
+
+    def put(
+        self,
+        url: str,
+        data: Dict = None,
+        json: Dict = None,
+        retry: int = 3,
+        stream: bool = False,
+        **kwargs: Any,
+    ) -> Union[httpx.Response, Iterator[httpx.Response], None]:
+        while retry > 0:
+            try:
+                if stream:
+                    return self.client.stream(
+                        "PUT", url, data=data, json=json, **kwargs
+                    )
+                else:
+                    return self.client.put(url, data=data, json=json, **kwargs)
+            except Exception as e:
+                msg = f"error when put {url}: {e}"
                 logger.error(f"{e.__class__.__name__}: {msg}")
                 retry -= 1
 
@@ -674,6 +700,217 @@ class ApiRequest:
             resp, as_json=True, value_func=lambda r: r.get("data")
         )
 
+    # MCP Profile Methods
+    def get_mcp_profile(self, **kwargs) -> Dict:
+        """
+        获取 MCP 通用配置
+        """
+        resp = self.get("/api/v1/mcp_connections/profile", **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    def create_mcp_profile(
+        self,
+        timeout: int = 30,
+        working_dir: str = "/tmp",
+        env_vars: Dict[str, str] = None,
+        **kwargs
+    ) -> Dict:
+        """
+        创建 MCP 通用配置
+        """
+        if env_vars is None:
+            env_vars = {}
+        data = {
+            "timeout": timeout,
+            "working_dir": working_dir,
+            "env_vars": env_vars,
+        }
+        resp = self.post("/api/v1/mcp_connections/profile", json=data, **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    def update_mcp_profile(
+        self,
+        timeout: int = 30,
+        working_dir: str = "/tmp",
+        env_vars: Dict[str, str] = None,
+        **kwargs
+    ) -> Dict:
+        """
+        更新 MCP 通用配置
+        """
+        if env_vars is None:
+            env_vars = {}
+        data = {
+            "timeout": timeout,
+            "working_dir": working_dir,
+            "env_vars": env_vars,
+        }
+        resp = self.put("/api/v1/mcp_connections/profile", json=data, **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    def reset_mcp_profile(self, **kwargs) -> Dict:
+        """
+        重置 MCP 通用配置为默认值
+        """
+        resp = self.post("/api/v1/mcp_connections/profile/reset", **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    def delete_mcp_profile(self, **kwargs) -> Dict:
+        """
+        删除 MCP 通用配置
+        """
+        resp = self.delete("/api/v1/mcp_connections/profile", **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    # MCP Connection Methods
+    def add_mcp_connection(
+        self,
+        server_name: str,
+        args: List[str] = None,
+        env: Dict[str, str] = None,
+        cwd: Optional[str] = None,
+        transport: str = "stdio",
+        timeout: int = 30,
+        enabled: bool = True,
+        description: Optional[str] = None,
+        config: Dict = None,
+        **kwargs
+    ) -> Dict:
+        """
+        添加 MCP 连接
+        """
+        if args is None:
+            args = []
+        if env is None:
+            env = {}
+        if config is None:
+            config = {}
+        data = {
+            "server_name": server_name,
+            "args": args,
+            "env": env,
+            "cwd": cwd,
+            "transport": transport,
+            "timeout": timeout,
+            "enabled": enabled,
+            "description": description,
+            "config": config,
+        }
+        resp = self.post("/api/v1/mcp_connections/", json=data, **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    def get_all_mcp_connections(self, enabled_only: bool = False, **kwargs) -> Dict:
+        """
+        获取所有 MCP 连接
+        """
+        params = {"enabled_only": enabled_only} if enabled_only else {}
+        resp = self.get("/api/v1/mcp_connections/", params=params, **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    def get_mcp_connection(self, connection_id: str, **kwargs) -> Dict:
+        """
+        根据 ID 获取 MCP 连接
+        """
+        resp = self.get(f"/api/v1/mcp_connections/{connection_id}", **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    def update_mcp_connection(
+        self,
+        connection_id: str,
+        server_name: Optional[str] = None,
+        args: Optional[List[str]] = None,
+        env: Optional[Dict[str, str]] = None,
+        cwd: Optional[str] = None,
+        transport: Optional[str] = None,
+        timeout: Optional[int] = None,
+        enabled: Optional[bool] = None,
+        description: Optional[str] = None,
+        config: Optional[Dict] = None,
+        **kwargs
+    ) -> Dict:
+        """
+        更新 MCP 连接
+        """
+        data = {}
+        if server_name is not None:
+            data["server_name"] = server_name
+        if args is not None:
+            data["args"] = args
+        if env is not None:
+            data["env"] = env
+        if cwd is not None:
+            data["cwd"] = cwd
+        if transport is not None:
+            data["transport"] = transport
+        if timeout is not None:
+            data["timeout"] = timeout
+        if enabled is not None:
+            data["enabled"] = enabled
+        if description is not None:
+            data["description"] = description
+        if config is not None:
+            data["config"] = config
+        
+        resp = self.put(f"/api/v1/mcp_connections/{connection_id}", json=data, **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    def delete_mcp_connection(self, connection_id: str, **kwargs) -> Dict:
+        """
+        删除 MCP 连接
+        """
+        resp = self.delete(f"/api/v1/mcp_connections/{connection_id}", **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    def enable_mcp_connection(self, connection_id: str, **kwargs) -> Dict:
+        """
+        启用 MCP 连接
+        """
+        resp = self.post(f"/api/v1/mcp_connections/{connection_id}/enable", **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    def disable_mcp_connection(self, connection_id: str, **kwargs) -> Dict:
+        """
+        禁用 MCP 连接
+        """
+        resp = self.post(f"/api/v1/mcp_connections/{connection_id}/disable", **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    
+    def search_mcp_connections(
+        self,
+        keyword: Optional[str] = None,
+        server_type: Optional[str] = None,
+        enabled: Optional[bool] = None,
+        limit: int = 50,
+        **kwargs
+    ) -> Dict:
+        """
+        搜索 MCP 连接
+        """
+        data = {
+            "keyword": keyword,
+            "server_type": server_type,
+            "enabled": enabled,
+            "limit": limit,
+        }
+        resp = self.post("/api/v1/mcp_connections/search", json=data, **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    def get_mcp_connections_by_server_name(self, server_name: str, **kwargs) -> Dict:
+        """
+        根据服务器名称获取 MCP 连接
+        """
+        resp = self.get(f"/api/v1/mcp_connections/server/{server_name}", **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    def get_enabled_mcp_connections(self, **kwargs) -> Dict:
+        """
+        获取启用的 MCP 连接
+        """
+        resp = self.get("/api/v1/mcp_connections/enabled/list", **kwargs)
+        return self._get_response_value(resp, as_json=True)
+
+    
 
 class AsyncApiRequest(ApiRequest):
     def __init__(
@@ -707,3 +944,35 @@ def check_success_msg(data: Union[str, dict, list], key: str = "msg") -> str:
     ):
         return data[key]
     return ""
+
+
+def get_img_base64(file_name: str) -> str:
+    """
+    get_img_base64 used in streamlit.
+    absolute local path not working on windows.
+    """
+    image = f"{Settings.basic_settings.IMG_DIR}/{file_name}"
+    # 读取图片
+    with open(image, "rb") as f:
+        buffer = BytesIO(f.read())
+        base_str = base64.b64encode(buffer.getvalue()).decode()
+    return f"data:image/png;base64,{base_str}"
+
+
+if __name__ == "__main__":
+    api = ApiRequest()
+    aapi = AsyncApiRequest()
+
+    # with api.chat_chat("你好") as r:
+    #     for t in r.iter_text(None):
+    #         print(t)
+
+    # r = api.chat_chat("你好", no_remote_api=True)
+    # for t in r:
+    #     print(t)
+
+    # r = api.duckduckgo_search_chat("室温超导最新研究进展", no_remote_api=True)
+    # for t in r:
+    #     print(t)
+
+    # print(api.list_knowledge_bases())

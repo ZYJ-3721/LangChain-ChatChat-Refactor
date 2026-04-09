@@ -7,9 +7,9 @@ search_local_knowledgebase:
   top_k: 3
   score_threshold: 1.0
   conclude_prompt:
-    with_result: "<指令>根据已知信息，简洁和专业的来回答问题。如果无法从中得到答案，请说 \"根据已知信息无法回答该问题\"，不允许在答案中添加编造成分，答案请使用中文。
-      </指令>\n<已知信息>{{ context }}</已知信息>\n<问题>{{ question }}</问题>\n"
-    without_result: "请你根据我的提问回答我的问题:\n{{ question }}\n请注意，你必须在回答结束后强调，你的回答是根据你的经验回答而不是参考资料回答的。\n"
+    with_result: "<指令>你是一个严谨的AI助手，你可以根据已知信息，严谨认真地回答某个问题。如果你无法从中得到答案，就回复 “抱歉，暂时无法回答该问题，未从知识库中查询到相关内容”。坚决不允许编造不存在的信息。</指令>\n
+      <已知信息>{{ context }}</已知信息>\n<问题>{{ question }}</问题>\n"
+    without_result: "根据我的提问回答问题:\n{{ question }}\n注意，你必须在回答结束后强调，你的回答是根据你的经验回答而不是参考资料回答的。\n"
 
 # 搜索引擎工具配置项。推荐自己部署 searx 搜索引擎，国内使用最方便。
 search_internet:
@@ -22,11 +22,6 @@ search_internet:
       language: zh-CN
       categories: []
       engines: []
-    metaphor:
-      metaphor_api_key: ''
-      split_result: false
-      chunk_overlap: 50
-      chunk_size: 500
     bing:
       bing_search_url: https://api.bing.microsoft.com/v7.0/search
       bing_key: ''
@@ -35,19 +30,17 @@ search_internet:
       google_key: ''
   top_k: 5
   verbose: Origin
-  conclude_prompt: "<指令>这是搜索到的互联网信息，请你根据这些信息进行提取并有调理，简洁的回答问题。如果无法从中得到答案，请说 “无法搜索到能回答问题的内容”。
-    </指令>\n<已知信息>{{ context }}</已知信息>\n<问题>\n{{ question }}\n</问题>\n"
+  conclude_prompt: "<指令>你是一个严谨的AI助手，你可以根据已知信息，严谨认真地回答某个问题。如果你无法从中得到答案，就回复 “抱歉，无法回答该问题，未从网络中搜索到相关内容”。坚决不允许编造不存在的信息。</指令>\n
+    <已知信息>{{ context }}</已知信息>\n<问题>{{ question }}</问题>\n"
 
 # URL内容阅读(https://r.jina.ai/)工具配置项, 请确保部署的网络环境良好，以免造成超时等问题
 url_reader:
   use: false
   timeout: '10000'
 
-# 图片生成工具配置项。model 必须是在 model_settings.yaml/MODEL_PLATFORMS 中配置过的。
-text2images:
+# arxiv 搜索工具配置项
+arxiv:
   use: false
-  model: stable-diffusion-xl-base-1.0
-  size: 256*256
 
 # 心知天气（https://www.seniverse.com/）工具配置项
 weather_check:
@@ -63,14 +56,11 @@ amap:
 calculate:
   use: false
 
-# arxiv 搜索工具配置项
-arxiv:
+# 图片生成工具配置项。model 必须是在 model_settings.yaml/MODEL_PLATFORMS 中配置过的。
+text2images:
   use: false
-search_youtube:
-  use: false
-wolfram:
-  use: false
-  appid: ''
+  model: stable-diffusion-xl-base-1.0
+  size: 256*256
 
 # text2sql使用建议
 # 1、因大模型生成的sql可能与预期有偏差，请务必在测试环境中进行充分测试、评估；
