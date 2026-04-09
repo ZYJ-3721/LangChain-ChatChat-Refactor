@@ -1,8 +1,8 @@
 # LangChain-ChatChat-Refactor
 原项目：https://github.com/chatchat-space/Langchain-Chatchat
 
-- [ x ] 学习 poetry 项目管理
-- [ x ] 梳理 settings 复杂配置
+- [ X ] 学习 poetry 项目管理
+- [ X ] 梳理 settings 复杂配置
 - [  ] 优化 webui 界面操作
 - [  ] 重构 server 项目框架
 
