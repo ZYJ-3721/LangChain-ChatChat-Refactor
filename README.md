@@ -2,7 +2,9 @@
 原项目：https://github.com/chatchat-space/Langchain-Chatchat
 
 ## 环境搭建
-```conda create -n lc python=3.11```
+```bash
+conda create -n lc python=3.11
+```
 
 `conda activate lc`
 
